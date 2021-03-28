@@ -15,7 +15,7 @@ func (s *Server) mountTodoRoutes() http.Handler {
 	r.Route("/{todoId}", func(r chi.Router) {
 		r.Get("/", s.handleTaskView)
 		r.Patch("/", s.handleTaskUpdate)
-		//r.Delete("/", s.handleTodoDelete)
+		r.Delete("/", s.handleTaskDelete)
 	})
 
 	return r
@@ -111,6 +111,7 @@ func (s *Server) handleTaskUpdate(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		Error(w, r, err)
+		return
 	}
 
 	w.Header().Set("Content-type", "application/json")
@@ -119,6 +120,25 @@ func (s *Server) handleTaskUpdate(w http.ResponseWriter, r *http.Request) {
 		LogError(r, err)
 		return
 	}
+}
+
+func (s *Server) handleTaskDelete(w http.ResponseWriter, r *http.Request) {
+
+	todoId, err := strconv.Atoi(chi.URLParam(r, "todoId"))
+
+	if err != nil {
+		Error(w, r, Todo.Errorf(Todo.EINVALID, "Invalid Id format"))
+	}
+
+	if err := s.TaskService.DeleteTask(r.Context(), todoId); err != nil {
+		Error(w, r, err)
+		return
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(`{}`))
+
 }
 
 type tasksResponse struct {

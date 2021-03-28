@@ -29,6 +29,8 @@ type TaskService interface {
 	CreateTask(ctx context.Context, task *Task) error
 	//Update Task
 	UpdateTask(ctx context.Context, id int, upd TaskUpdate) (*Task, error)
+	//Delete Task
+	DeleteTask(ctx context.Context, id int) error
 }
 
 type TaskFilter struct {

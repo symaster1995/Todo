@@ -81,12 +81,38 @@ func (t *TaskService) UpdateTask(ctx context.Context, id int, upd Todo.TaskUpdat
 	return task, tx.Commit()
 }
 
+func (t *TaskService) DeleteTask(ctx context.Context, id int) error {
+	tx, err := t.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := deleteTask(ctx, tx, id); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func deleteTask(ctx context.Context, tx *Tx, id int) error {
+
+	if _, err := getTaskById(ctx, tx, id); err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx,`DELETE FROM tasks WHERE id = ?`, id); err != nil{
+		return err
+	}
+	return nil
+}
+
 func updateTask(ctx context.Context, tx *Tx, id int, upd Todo.TaskUpdate) (*Todo.Task, error) {
 
 	task, err := getTaskById(ctx, tx, id)
 
 	if err != nil {
-		return task, nil
+		return nil, err
 	}
 
 	if v := upd.Name; v != nil {

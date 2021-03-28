@@ -1,0 +1,10 @@
+server:
+  port: 3000
+
+database:
+  dbname: "todo"
+  dbuser: "root"
+  dbpassword: "password"
+  dbhost: "127.0.0.1:3306"
+
+test_string: "test string"
